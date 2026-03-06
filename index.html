@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aku minta maaf</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes custom-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        .animate-stop-and-pulse {
+            animation: custom-pulse 1.5s infinite ease-in-out;
+        }
+        .transition-fast {
+            transition: all 0.15s ease-out;
+        }
+        body {
+            overflow: hidden; /* Supaya nggak ada scrollbar pas tombol lari */
+            touch-action: none; /* Mencegah scrolling di HP saat ngejar tombol */
+        }
+    </style>
+</head>
+<body class="bg-pink-100 h-screen flex flex-col items-center justify-center font-sans">
+
+    <div id="main-card" class="text-center p-8 bg-white rounded-3xl shadow-2xl z-10">
+        <img id="display-image" src="./20260306_134019.gif" 
+             alt="Cute Cats Cuddling" class="w-140 h-48 mx-auto mb-4 rounded-xl object-cover">
+        
+        <h1 id="question" class="text-2xl font-bold text-gray-800 mb-6">Kamu Masih marah yaa!😏😕</h1>
+        
+        <div class="flex gap-4 justify-center items-center h-16">
+            <button id="btn-mau" class="transition-fast bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-8 rounded-full shadow-lg z-20">
+                Iya aku maafin
+            </button>
+
+            <button id="btn-nggak" class="transition-fast bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-8 rounded-full shadow-lg z-20">
+                NGGAK
+            </button>
+        </div>
+
+        <p id="troll-text" class="mt-6 text-sm italic text-pink-400 font-medium h-5">
+            </p>
+    </div>
+
+    <div id="success-screen" class="hidden fixed inset-0 bg-pink-500 flex flex-col items-center justify-center text-white text-center p-6 z-50">
+        <h1 class="text-5xl font-bold mb-4">Makasih ya udah di maafin🥰</h1>
+        <p class="text-xl">Udah tau bakal di maafin, pake lari-lari segala.</p>
+        <img src="200w.gif" class="mt-6 rounded-lg shadow-xl">
+    </div>
+
+    <script>
+        const btnMau = document.getElementById('btn-mau');
+        const btnNggak = document.getElementById('btn-nggak');
+        const trollText = document.getElementById('troll-text');
+        const mainCard = document.getElementById('main-card');
+        const successScreen = document.getElementById('success-screen');
+
+        let mauHoverCount = 0;
+        const messages = [
+            "Duh, kurang cepet!",
+            "Yah, meleset!",
+            "Coba lagi sampai tipes!",
+            "Eits! Tangkep kalo bisa!",
+            "Masa gitu doang nggak kena?",
+            "Sedikit lagi! Eh nggak deng.",
+            "Ayo dong, masa kalah sama tombol?"
+        ];
+
+        function getRandomPosition(element) {
+            const btnWidth = element.offsetWidth;
+            const btnHeight = element.offsetHeight;
+            
+            // Jaga agar tetap di dalam viewport (dengan margin 20px dari tepi)
+            const maxX = window.innerWidth - btnWidth - 40;
+            const maxY = window.innerHeight - btnHeight - 40;
+            
+            // Pastikan nilai tidak negatif (untuk layar sangat kecil)
+            const safeMaxX = maxX > 0 ? maxX : 10;
+            const safeMaxY = maxY > 0 ? maxY : 10;
+
+            const randomX = Math.max(20, Math.floor(Math.random() * safeMaxX));
+            const randomY = Math.max(20, Math.floor(Math.random() * safeMaxY));
+            
+            return { x: randomX, y: randomY };
+        }
+
+        function moveButton(btn) {
+            // Ubah posisi jadi fixed agar bisa lari keluar dari card
+            btn.style.position = 'fixed'; 
+            const { x, y } = getRandomPosition(btn);
+            btn.style.left = x + 'px';
+            btn.style.top = y + 'px';
+        }
+
+        // Logic Tombol MAU
+        btnMau.addEventListener('mouseover', () => {
+            if (mauHoverCount < 7) {
+                moveButton(btnMau);
+                trollText.innerText = messages[Math.floor(Math.random() * messages.length)];
+                mauHoverCount++;
+            } else {
+                // Berhenti lari setelah 7 kali
+                // Reset posisi ke dalam flow normal
+                btnMau.style.position = 'relative'; 
+                btnMau.style.left = 'auto';
+                btnMau.style.top = 'auto';
+                
+                btnMau.classList.add('animate-stop-and-pulse', 'scale-125', 'bg-red-500');
+                btnMau.innerText = "KLIK AKU SEKARANG!";
+                trollText.innerText = "Oke oke, capek... silakan diklik.";
+            }
+        });
+
+        // Logic Tombol NGGAK (Selalu Lari)
+        btnNggak.addEventListener('mouseover', () => {
+             moveButton(btnNggak);
+             trollText.innerText = "Eits, mau mencet NGGAK ya? Jangan harap!";
+        });
+
+        // Kalau hoki bisa klik NGGAK (misal pakai Tab di keyboard)
+        btnNggak.addEventListener('click', (e) => {
+            e.preventDefault(); // Mencegah klik
+            alert("Eits, tidak semudah itu Ferguso! Tombol ini cuma pajangan.");
+            btnNggak.style.display = 'none'; // Hilangkan tombol
+        });
+
+        // Final Action (Klik MAU setelah capek)
+        btnMau.addEventListener('click', () => {
+            if (mauHoverCount >= 7) {
+                successScreen.classList.remove('hidden');
+            }
+        });
+
+        // Tambahan untuk Mobile (Touch Start) agar lebih responsif di HP
+        btnMau.addEventListener('touchstart', (e) => {
+             if (mauHoverCount < 7) {
+                e.preventDefault(); // Mencegah 'click' di trigger di mobile sebelum lari
+                moveButton(btnMau);
+                trollText.innerText = messages[Math.floor(Math.random() * messages.length)];
+                mauHoverCount++;
+            }
+        }, { passive: false });
+
+        btnNggak.addEventListener('touchstart', (e) => {
+             e.preventDefault();
+             moveButton(btnNggak);
+             trollText.innerText = "Ups, tombol ini licin!";
+        }, { passive: false });
+
+    </script>
+</body>
+</html>
